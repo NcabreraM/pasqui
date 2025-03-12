@@ -14,6 +14,8 @@ from scipy import spatial  # for calculating vector similarities for search
 from docx import Document
 import logging
 num=20
+gpt = "gpt-4o-mini"
+
 def load_embeddings(file_path):
     df = pd.read_csv(file_path)
     df['embedding'] = df['embedding'].apply(ast.literal_eval).apply(np.array)  # Apply ast.literal_eval to convert strings to lists and then np.array to convert to np array

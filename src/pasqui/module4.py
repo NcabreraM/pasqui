@@ -16,6 +16,8 @@ from langchain.callbacks import get_openai_callback
 
 import os
 import openpyxl
+gpt = "gpt-4o-mini"
+
 
 llm = ChatOpenAI(
     model_name=gpt,
