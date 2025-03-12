@@ -14,14 +14,13 @@ gpt = "gpt-4o-mini"
 token_budget = 7000 - 500
 intro = None
 
-def get_client(api_key=None):
-    """Initialize OpenAI client with an API key."""
-    if api_key is None:
-        api_key = os.getenv("api_key")  # Fetch from environment
-        if not api_key:
-            raise ValueError("API key is required but not set. Please set it at runtime.")
+def get_client():
+    """Initialize OpenAI client. API key must be set before calling this function."""
+    api_key = os.getenv("api_key")  # Get API key from environment
+    if not api_key:
+        raise ValueError("API key is required but not set. Use os.environ['api_key'] = 'your-key' before calling OpenAI functions.")
     
-    return openai.Client(api_key=api_key)
+    return openai.Client(api_key=api_key)  # Initialize client only when needed
 
 def load_embeddings(file_path):
     """Load embeddings from a CSV file."""
@@ -31,7 +30,7 @@ def load_embeddings(file_path):
 
 def strings_ranked_by_relatedness(query, df, top_n=num):
     """Return a list of strings sorted by relatedness."""
-    client = get_client()  # Ensure client is initialized only when needed
+    client = get_client()  # Initialize only when needed
 
     query_embedding_response = client.embeddings.create(
         model="text-embedding-ada-002",
@@ -65,7 +64,7 @@ def query_message(query, df, model, token_budget, question, introduction):
 
 def ask(query, df, model=gpt, token_budget=token_budget, introduction=intro, system_message=None):
     """Answer a query using a dataframe of relevant texts and embeddings."""
-    client = get_client()  # Ensure client is initialized only when needed
+    client = get_client()  # Initialize client inside function
 
     if system_message is None:
         system_message = "You are an AI assistant helping with information retrieval."
@@ -145,5 +144,3 @@ def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, log_f
 
     print("Processing completed. Check the log file for details.")
     return results
-
-
