@@ -114,9 +114,11 @@ def pasqui_structuring(summaries_out, results_file, errors_file, log_file, heade
                                 value = instruction.get(header)
                                 row.append(handle_value(value))
                             results_sheet.append(row)
-                            print("Data being written to sheet:")
-                                for row in results_sheet.iter_rows(values_only=True):
-                                print(row)  # Debugging to see what has been appended
+
+                        # Debugging: Print rows after appending to the sheet
+                        print("Data being written to sheet:")
+                        for row in results_sheet.iter_rows(values_only=True):
+                            print(row)  # Debugging to see what has been appended
 
                         wb.save(results_file)  # Save after every iteration
 
@@ -139,3 +141,4 @@ def pasqui_structuring(summaries_out, results_file, errors_file, log_file, heade
     
     print(f"Results saved to {results_file}")
     print(f"Errors saved to {errors_file}")
+
