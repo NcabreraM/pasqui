@@ -106,19 +106,12 @@ def create_summaries_out(summaries_out):
     if not os.path.exists(summaries_out):
         os.makedirs(summaries_out)
 
-# Function to process questions for each file
 def process_file(file_path, questions, headings, pasqui_asks):
     try:
-        # Process questions for the current file
-        answers = pasqui_asks(file_path, questions)
-        _ = answers
-
-        # Log success
+        answers = pasqui_asks(file_path, questions)  # Get answers
         logging.info(f"Successfully processed {file_path}")
-
-        return None
+        return answers  # Ensure it returns answers
     except Exception as e:
-        # Log the error
         logging.error(f"Error processing {file_path}: {e}")
         return None
 
@@ -157,6 +150,7 @@ def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, pasqu
 
     # List all files in the directory
     files = list_files_in_directory(embeddings_dir)
+    print(f"Files found: {files}")  # Debugging step
 
     # Create output directory if it doesn't exist
     create_summaries_out(summaries_out)
@@ -167,15 +161,15 @@ def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, pasqu
     # Iterate through each file in the directory
     for file_name in files:
         file_path = os.path.join(embeddings_dir, file_name)
+        print(f"Processing file: {file_path}")  # Debugging step
 
         # Process file and get answers
         answers = process_file(file_path, questions, headings, pasqui_asks)
-        if answers:
-            # Write the answers to a text file
-            write_answers_to_file(file_name, answers, questions, headings, summaries_out)
+        print(f"Generated answers: {answers}")  # Debugging step
 
-            # Append results
-            accumulate_results(file_name, headings, questions, answers, results)
+        if answers:  # Only proceed if answers are returned
+            base_name = os.path.splitext(file_name)[0]  # Remove file extension
+            write_answers_to_file(base_name, answers, questions, headings, summaries_out)
+            accumulate_results(base_name, headings, questions, answers, results)
 
-    print("Processing completed. Check the log file for details.")
-    return results
+    return results  # Ensure return is the last statement
