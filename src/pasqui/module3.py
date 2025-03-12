@@ -17,6 +17,7 @@ num=20
 gpt = "gpt-4o-mini"
 token_budget= 7000 - 500
 intro=None
+api_key=None
 
 def load_embeddings(file_path):
     df = pd.read_csv(file_path)
