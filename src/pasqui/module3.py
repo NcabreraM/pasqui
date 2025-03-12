@@ -79,68 +79,34 @@ def ask(query, df, model=gpt, token_budget=token_budget, introduction=intro, sys
     response = client.chat.completions.create(model=model, messages=messages, temperature=0)
     return response.choices[0].message.content
 
+# ask_questions_for_file remains the same, as the customizable parts are already defined outside.
 def ask_questions_for_file(file_path, questions):
-    """Ask multiple questions about a file."""
     df = load_embeddings(file_path)
-    return {question: ask(question, df) for question in questions}
+    answers = {}
+    for question in questions:
+        answer = ask(question, df)
+        answers[question] = answer
+    return answers
 
 def setup_logging(log_file_path):
-    """Setup logging."""
-    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+    # Ensure the directory for the log file exists
+    log_dir = os.path.dirname(log_file_path)
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    # Set up logging
     logging.basicConfig(filename=log_file_path, level=logging.INFO)
 
 def list_files_in_directory(directory_path):
     """List all files in a directory."""
     return os.listdir(directory_path)
 
+# Function to create output directory if it doesn't exist
 def create_summaries_out(summaries_out):
-    """Ensure summaries output directory exists."""
-    os.makedirs(summaries_out, exist_ok=True)
+    if not os.path.exists(summaries_out):
+        os.makedirs(summaries_out)
 
-def process_file(file_path, questions, ask_questions_for_file):
-    """Process questions for a file and log errors if any."""
-    try:
-        answers = ask_questions_for_file(file_path, questions)
-        logging.info(f"Successfully processed {file_path}")
-        return answers
-    except Exception as e:
-        logging.error(f"Error processing {file_path}: {e}")
-        return None
-
-def write_answers_to_file(file_name, answers, questions, headings, summaries_out):
-    """Write answers to a text file."""
-    try:
-        text_output_path = os.path.join(summaries_out, f"{file_name}.txt")
-        with open(text_output_path, 'w') as textfile:
-            textfile.write(f"Results for {file_name}:\n\n")
-            for heading, question in zip(headings, questions):
-                answer = answers.get(question, "No answer found")
-                textfile.write(f"{heading}: {answer}\n")
-        return text_output_path
-    except Exception as e:
-        logging.error(f"Error writing to file {file_name}: {e}")
-        return None
-
-def accumulate_results(file_name, headings, questions, answers, results):
-    """Accumulate results in a list."""
-    result = {'file_name': file_name}
-    for heading, question in zip(headings, questions):
-        result[heading] = answers.get(question, "No answer found")
-    results.append(result)
-
-def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, log_file_path):
-    """Main function to process multiple files."""
-    setup_logging(log_file_path)
-    files = list_files_in_directory(embeddings_dir)
-    create_summaries_out(summaries_out)
-    results = []
-
-    for file_name in files:
-        file_path = os.path.join(embeddings_dir, file_name)
-        answers = process_file(file_path, questions, ask_questions_for_file)
-        if answers:
-            write_answers_to_file(file_name, answers, questions, headings, summaries_out)
-            accumulate_results(file_name, headings, questions, answers, results)
-
-    print("Processing completed. Check the log file for details.")
-    return results
+# Function to create output directory if it doesn't exist
+def create_summaries_out(summaries_out):
+    if not os.path.exists(summaries_out):
+        os.makedirs(summaries_out)
