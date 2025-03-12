@@ -17,7 +17,12 @@ num=20
 gpt = "gpt-4o-mini"
 token_budget= 7000 - 500
 intro=None
-api_key=None
+
+
+api_key = os.getenv("api_key")  # Fetch API key from environment variable
+
+client = openai.Client(api_key=api_key)  # Use it in the OpenAI client
+
 
 def load_embeddings(file_path):
     df = pd.read_csv(file_path)
