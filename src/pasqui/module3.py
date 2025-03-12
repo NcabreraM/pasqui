@@ -80,7 +80,7 @@ def ask(query, df, model=gpt, token_budget=token_budget, introduction=intro, sys
     return response.choices[0].message.content
 
 # ask_questions_for_file remains the same, as the customizable parts are already defined outside.
-def ask_questions_for_file(file_path, questions):
+def pasqui_asks(file_path, questions):
     df = load_embeddings(file_path)
     answers = {}
     for question in questions:
@@ -107,10 +107,10 @@ def create_summaries_out(summaries_out):
         os.makedirs(summaries_out)
 
 # Function to process questions for each file
-def process_file(file_path, questions, headings, ask_questions_for_file):
+def process_file(file_path, questions, headings, pasqui_asks):
     try:
         # Process questions for the current file
-        answers = ask_questions_for_file(file_path, questions)
+        answers = pasqui_asks(file_path, questions)
         _ = answers
 
         # Log success
@@ -151,7 +151,7 @@ def accumulate_results(file_name, headings, questions, answers, results):
     results.append(result)
 
 # Main function to orchestrate the processing
-def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, ask_questions_for_file, log_file_path):
+def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, pasqui_asks, log_file_path):
     # Call the setup_logging function
     setup_logging(log_file_path)
 
@@ -169,7 +169,7 @@ def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, ask_q
         file_path = os.path.join(embeddings_dir, file_name)
 
         # Process file and get answers
-        answers = process_file(file_path, questions, headings, ask_questions_for_file)
+        answers = process_file(file_path, questions, headings, pasqui_asks)
         if answers:
             # Write the answers to a text file
             write_answers_to_file(file_name, answers, questions, headings, summaries_out)
