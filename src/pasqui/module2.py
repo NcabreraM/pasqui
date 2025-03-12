@@ -8,9 +8,8 @@ from scipy import spatial  # for calculating vector similarities for search
 from docx import Document
 import logging
 import re
-em = None #This is the model we will use for embeddings. I can be changed but this it the most efficient.
-gpt = None
-
+gpt = "gpt-4o-mini" #module3 is for summarising. Sorry for the shitty names.
+em = "text-embedding-3-small"
 # Function to return the number of tokens in a string
 def num_tokens(text, model=gpt):
     encoding = tiktoken.encoding_for_model(model)
