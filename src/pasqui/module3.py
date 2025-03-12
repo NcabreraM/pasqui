@@ -63,11 +63,15 @@ def query_message(query, df, model, token_budget, question, introduction):
     return message + question
 
 def ask(query, df, model=gpt, token_budget=token_budget, introduction=intro, system_message=None):
-    """Answer a query using a dataframe of relevant texts and embeddings."""
+    """Answer a query using only the information of this dataframe of relevant texts and embeddings."""
     client = get_client()  # Initialize client inside function
 
     if system_message is None:
-        system_message = "You are an AI assistant helping with information retrieval."
+        system_message = """
+You are Professor Smith, a highly rigorous social sciences professor.
+Use only the information of the text I provided to answer the question.
+If you don't know the answer, just say that you do not know.
+"""
 
     user_message = query_message(query, df, model=model, token_budget=token_budget, question=query, introduction=introduction)
 

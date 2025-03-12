@@ -64,7 +64,7 @@ def handle_value(value):
         return ', '.join(map(str, value))
     return value if value else "NA"
 
-def pasqui_structuring(summaries_out, results_file, errors_file, log_file, headers_vars, folder_path, instruction=None):
+def pasqui_structuring(summaries_out, results_file, errors_file, log_file, headers_vars, instruction=None):
     """Process text files and structure results into an Excel file."""
 
     # Load already processed files
@@ -87,14 +87,14 @@ def pasqui_structuring(summaries_out, results_file, errors_file, log_file, heade
     new_processed_files = set()
 
     # Get and sort text files
-    files = sorted([f for f in os.listdir(folder_path) if f.endswith(".txt")])
+    files = sorted([f for f in os.listdir(summaries_out) if f.endswith(".txt")])
 
     # Create a new chain if an instruction override is provided
     local_chain = get_chain(instruction) if instruction else chain
 
     for filename in files:
         if filename not in processed_files:
-            file_path = os.path.join(folder_path, filename)
+            file_path = os.path.join(summaries_out, filename)
             with open(file_path, 'r', encoding='utf-8') as file:
                 text = file.read()
                 input_data = {"text": text}
@@ -130,6 +130,6 @@ def pasqui_structuring(summaries_out, results_file, errors_file, log_file, heade
 
     wb.save(results_file)
     update_processed_files(log_file, new_processed_files)
-
+    
     print(f"Results saved to {results_file}")
     print(f"Errors saved to {errors_file}")
