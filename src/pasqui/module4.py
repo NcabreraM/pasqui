@@ -116,6 +116,7 @@ def pasqui_structuring(summaries_out, results_file, errors_file, log_file, heade
                             results_sheet.append(row)
                     else:
                         results_sheet.append([filename] + ["NA"] * (len(headers_vars) - 1))
+                        results_sheet.append(row)
 
                     new_processed_files.add(filename)
                     wb.save(results_file)
