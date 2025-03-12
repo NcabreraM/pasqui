@@ -10,6 +10,14 @@ import logging
 import re
 gpt = "gpt-4o-mini" #module3 is for summarising. Sorry for the shitty names.
 em = "text-embedding-3-small"
+# Ensure API key is set
+api_key = os.getenv("api_key")  # Retrieve from environment
+if not api_key:
+    raise ValueError("API key is required but not set. Use os.environ['OPENAI_API_KEY'] = 'your-key' before running the script.")
+
+# Initialize OpenAI client
+client = openai.Client(api_key=api_key)
+
 # Function to return the number of tokens in a string
 def num_tokens(text, model=gpt):
     encoding = tiktoken.encoding_for_model(model)
