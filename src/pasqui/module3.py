@@ -89,13 +89,13 @@ def ask_questions_for_file(file_path, questions):
     return answers
 
 def setup_logging(log_file_path):
-    # Ensure the directory for the log file exists
+    """Ensure the log directory exists and set up logging."""
     log_dir = os.path.dirname(log_file_path)
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
+    os.makedirs(log_dir, exist_ok=True)  # Creates directory if it doesn't exist
 
     # Set up logging
     logging.basicConfig(filename=log_file_path, level=logging.INFO)
+    print(f"Logging set up at {log_file_path}")  # Debug message
 
 def list_files_in_directory(directory_path):
     """List all files in a directory."""
