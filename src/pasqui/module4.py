@@ -73,8 +73,8 @@ def pasqui_structuring(summaries_out, results_file, errors_file, log_file, heade
     # Check if the workbook already exists
     if os.path.exists(results_file):
         wb = openpyxl.load_workbook(results_file)
-        results_sheet = wb["Results"]
-        errors_sheet = wb["Errors"]
+        results_sheet = wb.get_sheet_by_name["Results"]
+        errors_sheet = wb.get_sheet_by_name["Errors"]
     else:
         wb = openpyxl.Workbook()
         results_sheet = wb.active
