@@ -148,7 +148,6 @@ def accumulate_results(file_name, headings, questions, answers, results):
         result[heading] = answer
     results.append(result)
 
-# Main function to orchestrate the processing
 def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, pasqui_asks, log_file_path):
     # Call the setup_logging function
     setup_logging(log_file_path)
@@ -170,7 +169,9 @@ def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, pasqu
 
         # Process file and get answers
         answers = process_file(file_path, questions, headings, pasqui_asks)
-        print(f"Generated answers: {done}")  # Debugging step
+
+        # Removed incorrect 'done' reference and prevented answers from printing
+        # print(f"Generated answers: {answers}")  # Commented out to stop console output
 
         if answers:  # Only proceed if answers are returned
             base_name = file_name
