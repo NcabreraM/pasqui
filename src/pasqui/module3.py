@@ -15,6 +15,7 @@ from docx import Document
 import logging
 num=20
 gpt = "gpt-4o-mini"
+token_budget=7000 - 500
 
 def load_embeddings(file_path):
     df = pd.read_csv(file_path)
