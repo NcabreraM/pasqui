@@ -18,10 +18,10 @@ gpt = "gpt-4o-mini"
 token_budget= 7000 - 500
 intro=None
 
+api_key = os.getenv("api_key", None)  # Set default to None in case it's missing
 
-api_key = os.getenv("api_key")  # Fetch API key from environment variable
-
-client = openai.Client(api_key=api_key)  # Use it in the OpenAI client
+if api_key is None:
+    raise ValueError("API key is missing. Set it in the environment using os.environ['api_key'].")
 
 
 def load_embeddings(file_path):
