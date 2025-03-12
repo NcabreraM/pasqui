@@ -106,7 +106,76 @@ def create_summaries_out(summaries_out):
     if not os.path.exists(summaries_out):
         os.makedirs(summaries_out)
 
-# Function to create output directory if it doesn't exist
-def create_summaries_out(summaries_out):
-    if not os.path.exists(summaries_out):
-        os.makedirs(summaries_out)
+# Function to process questions for each file
+def process_file(file_path, questions, headings, ask_questions_for_file):
+    try:
+        # Process questions for the current file
+        answers = ask_questions_for_file(file_path, questions)
+        _ = answers
+
+        # Log success
+        logging.info(f"Successfully processed {file_path}")
+
+        return None
+    except Exception as e:
+        # Log the error
+        logging.error(f"Error processing {file_path}: {e}")
+        return None
+
+# Function to write answers to a text file
+def write_answers_to_file(file_path, answers, questions, headings, summaries_out):
+    try:
+        # Generate text output file path
+        text_output_path = os.path.join(summaries_out, f"{file_path}.txt")
+
+        # Open the text file for writing
+        with open(text_output_path, 'w') as textfile:
+            textfile.write(f"Results for {file_path}:\n\n")
+
+            # Write each question and its answer to the text file
+            for heading, question in zip(headings, questions):
+                answer = answers.get(question, "No answer found")
+                textfile.write(f"{heading}: {answer}\n")
+
+        return text_output_path
+    except Exception as e:
+        logging.error(f"Error writing to file {file_path}: {e}")
+        return None
+
+# Function to accumulate results in a list
+def accumulate_results(file_name, headings, questions, answers, results):
+    result = {'file_name': file_name}
+    for heading, question in zip(headings, questions):
+        answer = answers.get(question, "No answer found")
+        result[heading] = answer
+    results.append(result)
+
+# Main function to orchestrate the processing
+def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, ask_questions_for_file, log_file_path):
+    # Call the setup_logging function
+    setup_logging(log_file_path)
+
+    # List all files in the directory
+    files = list_files_in_directory(embeddings_dir)
+
+    # Create output directory if it doesn't exist
+    create_summaries_out(summaries_out)
+
+    # List to accumulate results
+    results = []
+
+    # Iterate through each file in the directory
+    for file_name in files:
+        file_path = os.path.join(embeddings_dir, file_name)
+
+        # Process file and get answers
+        answers = process_file(file_path, questions, headings, ask_questions_for_file)
+        if answers:
+            # Write the answers to a text file
+            write_answers_to_file(file_name, answers, questions, headings, summaries_out)
+
+            # Append results
+            accumulate_results(file_name, headings, questions, answers, results)
+
+    print("Processing completed. Check the log file for details.")
+    return results
