@@ -105,7 +105,10 @@ def pasqui_structuring(summaries_out, results_file, errors_file, log_file, heade
                     print(f"Output for {filename}: {output}")
 
                     data = output.get('data', {})
-                    instruction_list = data.get("instruction", [])
+                    # Dynamically find the first key in the extracted data
+                    first_key = next(iter(data.keys()), None)
+                    instruction_list = data.get(first_key, []) if first_key else []
+
 
                     if instruction_list:
                         for instruction in instruction_list:
