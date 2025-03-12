@@ -10,31 +10,41 @@ from langchain_openai import ChatOpenAI
 import time
 import json
 from datetime import datetime
+import os
+import openpyxl
 
 # For token counting
 from langchain.callbacks import get_openai_callback
 
-import os
-import openpyxl
 gpt = "gpt-4o-mini"
 
+# Fetch API key from environment
 api_key = os.getenv("api_key")
 if not api_key:
     raise ValueError("API key is required but not set. Use os.environ['api_key'] = 'your-key' before running.")
 
-# Set instruction to None to avoid errors
-instruction = Object(None)
-
-
 llm = ChatOpenAI(
     model_name=gpt,
-    temperature=0, # Temperature sets how random the choice of tokens is. This means that the lower the temperature, the least creativity the model has
+    temperature=0,
     max_tokens=2000,
     openai_api_key=api_key
 )
 
+# Allow instruction to be overridden dynamically
+def get_chain(instruction=None):
+    """Create an extraction chain, allowing instruction override."""
+    if instruction is None:
+        # Default to an empty Object node if no instruction is provided
+        instruction = Object(
+            id="default",
+            description="Default extraction object",
+            attributes=[]  # No attributes by default
+        )
+    return create_extraction_chain(llm, instruction, encoder_or_encoder_class="csv")
 
-chain = create_extraction_chain(llm, instruction, encoder_or_encoder_class="csv")
+# Initialize with a default instruction
+chain = get_chain()
+
 def load_processed_files(log_file):
     """Load the list of processed files from the log file."""
     if os.path.exists(log_file):
@@ -51,130 +61,75 @@ def update_processed_files(log_file, processed_files):
 def handle_value(value):
     """Convert value to a string and handle lists or empty values."""
     if isinstance(value, list):
-        return ', '.join(map(str, value))  # Convert each list item to string and join
+        return ', '.join(map(str, value))
     return value if value else "NA"
 
-def process_files_in_folder(summaries_out, results_file, errors_file, log_file):
+def pasqui_structuring(summaries_out, results_file, errors_file, log_file, headers_vars, folder_path, instruction=None):
+    """Process text files and structure results into an Excel file."""
+
     # Load already processed files
     processed_files = load_processed_files(log_file)
 
     # Check if the workbook already exists
     if os.path.exists(results_file):
-        # Load the existing workbook and sheets
         wb = openpyxl.load_workbook(results_file)
-        results_sheet = wb.get_sheet_by_name('Results')
-        errors_sheet = wb.get_sheet_by_name('Errors')
+        results_sheet = wb["Results"]
+        errors_sheet = wb["Errors"]
     else:
-        # Create a new workbook and sheets for results and errors
         wb = openpyxl.Workbook()
         results_sheet = wb.active
         results_sheet.title = "Results"
         errors_sheet = wb.create_sheet(title="Errors")
-        # Write headers to results sheet
         results_sheet.append(headers_vars)
-        # Write header for errors sheet
         errors_sheet.append(["Error Files"])
 
-    # List to keep track of error files
     error_files = []
-    new_processed_files = set()  # Track files processed in this run
+    new_processed_files = set()
 
-    # Get list of files in the folder and sort them alphabetically
-    files = [f for f in os.listdir(summaries_out) if f.endswith(".txt")]
-    files.sort()  # Sort files alphabetically
+    # Get and sort text files
+    files = sorted([f for f in os.listdir(folder_path) if f.endswith(".txt")])
 
+    # Create a new chain if an instruction override is provided
+    local_chain = get_chain(instruction) if instruction else chain
 
-def handle_value(value):
-    """Convert value to a string and handle lists or empty values."""
-    if isinstance(value, list):
-        return ', '.join(map(str, value))  # Convert each list item to string and join
-    return value if value else "NA"
-
-def pasqui_structuring(summaries_out, results_file, errors_file, log_file):
-    # Load already processed files
-    processed_files = load_processed_files(log_file)
-
-    # Check if the workbook already exists
-    if os.path.exists(results_file):
-        # Load the existing workbook and sheets
-        wb = openpyxl.load_workbook(results_file)
-        results_sheet = wb.get_sheet_by_name('Results')
-        errors_sheet = wb.get_sheet_by_name('Errors')
-    else:
-        # Create a new workbook and sheets for results and errors
-        wb = openpyxl.Workbook()
-        results_sheet = wb.active
-        results_sheet.title = "Results"
-        errors_sheet = wb.create_sheet(title="Errors")
-        # Write headers to results sheet
-        results_sheet.append(headers)
-        # Write header for errors sheet
-        errors_sheet.append(["Error Files"])
-
-    # List to keep track of error files
-    error_files = []
-    new_processed_files = set()  # Track files processed in this run
-
-    # Get list of files in the folder and sort them alphabetically
-    files = [f for f in os.listdir(folder_path) if f.endswith(".txt")]
-    files.sort()  # Sort files alphabetically
-
-    # Process each file in the sorted list
     for filename in files:
-        if filename not in processed_files:  # Ensure not to reprocess already processed files
+        if filename not in processed_files:
             file_path = os.path.join(folder_path, filename)
             with open(file_path, 'r', encoding='utf-8') as file:
                 text = file.read()
                 input_data = {"text": text}
+
                 try:
-                    # Invoke the chain with the input data
-                    output = chain.invoke(input_data)
-                    print(f"Output for {filename}: {output}")  # Debugging line
+                    # Process with LangChain extraction
+                    output = local_chain.invoke(input_data)
+                    print(f"Output for {filename}: {output}")
+
                     data = output.get('data', {})
-                    instruction_list = data.get("instruction", [])  # Get the list
-                    print(f"instruction list for {filename}: {instruction_list}")  # Debugging line
+                    instruction_list = data.get("instruction", [])
 
                     if instruction_list:
-                     for instruction in instruction_list:
-                        row = [filename]
-
-                        # Loop over the headers and dynamically fetch and process each field
-                        for header in headers_vars[1:]:  # Skip the first element 'case_name'
-                            value = instruction.get(header)
-                            row.append(handle_value(value))
-
-                        # Append the row with processed values to results_sheet
-                        results_sheet.append(row)
+                        for instruction in instruction_list:
+                            row = [filename]
+                            for header in headers_vars[1:]:
+                                value = instruction.get(header)
+                                row.append(handle_value(value))
+                            results_sheet.append(row)
                     else:
-                    # Handle case where there are no crime records
-                      row = [filename] + ["NA"] * (len(headers_vars) - 1)
-                      results_sheet.append(row)
+                        results_sheet.append([filename] + ["NA"] * (len(headers_vars) - 1))
 
-                    # Add file to the new processed files set
                     new_processed_files.add(filename)
-
-                    # Save the workbook after processing each file
                     wb.save(results_file)
-
-                    # Update the log file with the processed file
                     update_processed_files(log_file, {filename})
 
                 except Exception as e:
-                    # Handle any exceptions and store the error message
                     print(f"Error processing file {filename}: {e}")
-                    error_files.append([filename])  # Record filename with error
+                    error_files.append([filename])
 
-    # Write error files to the errors sheet
     for filename in error_files:
         errors_sheet.append(filename)
 
-    # Save the workbook after processing all files
     wb.save(results_file)
-
-    # Update the log file with new processed files
     update_processed_files(log_file, new_processed_files)
-    print(f"Results saved to {output_file_results}")
-    print(f"Errors saved to {output_file_errors}")
 
-
-
+    print(f"Results saved to {results_file}")
+    print(f"Errors saved to {errors_file}")
