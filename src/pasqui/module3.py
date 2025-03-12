@@ -12,6 +12,7 @@ from openai import Client
 num = 20
 gpt = "gpt-4o-mini"
 token_budget = 7000 - 500
+em = "text-embedding-3-small"
 intro = None
 
 def get_client():
@@ -33,7 +34,7 @@ def strings_ranked_by_relatedness(query, df, top_n=num):
     client = get_client()  # Initialize only when needed
 
     query_embedding_response = client.embeddings.create(
-        model="text-embedding-ada-002",
+        model=em,
         input=query,
     )
     query_embedding = query_embedding_response.data[0].embedding
@@ -63,14 +64,14 @@ def query_message(query, df, model, token_budget, question, introduction):
     return message + question
 
 def ask(query, df, model=gpt, token_budget=token_budget, introduction=intro, system_message=None):
-    """Answer a query using only the information of this dataframe of relevant texts and embeddings."""
+    """Use only the provided information to answer the query, if you don't know the answer return NA"""
     client = get_client()  # Initialize client inside function
 
     if system_message is None:
         system_message = """
 You are Professor Smith, a highly rigorous social sciences professor.
 Use only the information of the text I provided to answer the question.
-If you don't know the answer, just say that you do not know.
+If you don't know the answer, just say that you do not know and return NA.
 """
 
     user_message = query_message(query, df, model=model, token_budget=token_budget, question=query, introduction=introduction)
@@ -169,10 +170,10 @@ def pasqui_summarising(embeddings_dir, summaries_out, questions, headings, pasqu
 
         # Process file and get answers
         answers = process_file(file_path, questions, headings, pasqui_asks)
-        print(f"Generated answers: {answers}")  # Debugging step
+        print(f"Generated answers: {done}")  # Debugging step
 
         if answers:  # Only proceed if answers are returned
-            base_name = os.path.splitext(file_name)[0]  # Remove file extension
+            base_name = file_name
             write_answers_to_file(base_name, answers, questions, headings, summaries_out)
             accumulate_results(base_name, headings, questions, answers, results)
 
