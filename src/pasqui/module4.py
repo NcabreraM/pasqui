@@ -137,6 +137,7 @@ def pasqui_structuring(summaries_out, results_file, errors_file, log_file, heade
         errors_sheet.append(filename)
 
     wb.save(results_file)
+    wb.close()
     update_processed_files(log_file, new_processed_files)
     
     print(f"Results saved to {results_file}")
