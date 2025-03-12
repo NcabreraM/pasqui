@@ -23,7 +23,7 @@ if not api_key:
     raise ValueError("API key is required but not set. Use os.environ['api_key'] = 'your-key' before running.")
 
 # Set instruction to None to avoid errors
-instruction = None
+instruction = Object(None)
 
 
 llm = ChatOpenAI(
