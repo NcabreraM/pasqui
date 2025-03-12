@@ -18,6 +18,13 @@ import os
 import openpyxl
 gpt = "gpt-4o-mini"
 
+api_key = os.getenv("api_key")
+if not api_key:
+    raise ValueError("API key is required but not set. Use os.environ['api_key'] = 'your-key' before running.")
+
+# Set instruction to None to avoid errors
+instruction = None
+
 
 llm = ChatOpenAI(
     model_name=gpt,
