@@ -12,6 +12,11 @@ Pasqui is designed to handly large amounts of long files, and gracefully deal wi
 * pasqui_structuring -> creates structured data from unstructured text.
 
 Pasqui requires kor package knowledge and google drive.
+
+## Google Colab Demo  
+Run the demo in Google Colab:  
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1BOhuEhxFr-JIVJDLd45YwHBW7HhYWmxg?usp=sharing)
+
 ## Installation
 ```bash
 !pip install git+https://github.com/NcabreraM/pasqui.git
