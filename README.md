@@ -20,3 +20,5 @@ Run the demo in Google Colab:
 ## Installation
 ```bash
 !pip install git+https://github.com/NcabreraM/pasqui.git
+
+Thanks for using Pasqui. This package is dedicated to my doggo, Pasqui! 🐶🐾
