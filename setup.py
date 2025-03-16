@@ -1,12 +1,5 @@
 from setuptools import setup, find_packages
 
-from setuptools.command.install import install
-
-class CustomInstallCommand(install):
-    def run(self):
-        print("\n\n🐶 Woof! Thanks for installing Pasqui. This package is dedicated to my doggo, Pasqui! 🐾")
-        # Call the default install command to proceed with the installation
-        install.run(self)
 setup(
     name='pasqui',
     version='0.1.0',
@@ -34,8 +27,5 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/NcabreraM/pasqui',
-    license='MIT',
-    cmdclass={
-        'install': CustomInstallCommand,
-    },
+    license='MIT'
 )
