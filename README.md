@@ -13,6 +13,8 @@ Pasqui is designed to handly large amounts of long files, and gracefully deal wi
 
 Pasqui requires kor package knowledge and google drive.
 
+Thanks for using Pasqui. This package is dedicated to my doggo, Pasqui! 🐶🐾
+
 ## Google Colab Demo  
 Run the demo in Google Colab:  
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1BOhuEhxFr-JIVJDLd45YwHBW7HhYWmxg?usp=sharing)
@@ -21,4 +23,3 @@ Run the demo in Google Colab:
 ```bash
 !pip install git+https://github.com/NcabreraM/pasqui.git
 
-Thanks for using Pasqui. This package is dedicated to my doggo, Pasqui! 🐶🐾
