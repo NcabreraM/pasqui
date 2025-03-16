@@ -9,6 +9,7 @@ setup(
         'console_scripts': [
             'post-install = post_install:main',
         ],
+    },
     install_requires=[
         'pdfplumber',
         'python-docx',
